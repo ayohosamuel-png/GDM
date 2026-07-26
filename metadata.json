@@ -1,0 +1,6 @@
+{
+  "name": "Plateforme de Gestion Électronique des Mémoires Académiques",
+  "description": "Plateforme universitaire et écosystème intelligent de gestion de la recherche académique : analyse de similitude IA, vérification de thème, espace encadreur avec annotations PDF, certificats numériques avec QR Code et recherche sémantique.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

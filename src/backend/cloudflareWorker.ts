@@ -69,53 +69,53 @@ export default {
       // -----------------------------------------------------------------
       // 2. AUTHENTICATION & LOGIN (CLOUDFLARE D1)
       // -----------------------------------------------------------------
-      if (path === '/api/auth/login' && method === 'POST') {
-        const body = await request.json() as any;
-        const { email, password } = body;
+      if (path === '/api/auth/register' && method === 'POST') {
+  const body = await request.json() as any;
 
-        if (!email || !password) {
-          return jsonResponse({ error: 'Email et mot de passe requis' }, 400, corsHeaders);
-        }
+  const { fullName, email, password, role, filiere } = body;
 
-        const trimmedEmail = email.trim().toLowerCase();
+  if (!fullName || !email || !password || !role || !filiere) {
+    return jsonResponse(
+      { error: "Veuillez remplir tous les champs obligatoires" },
+      400,
+      corsHeaders
+    );
+  }
 
-        // Super Admin Check
-        if (trimmedEmail === 'goodluckelishaagboguin@gmail.com') {
-          if (password !== 'Goodluck2003@') {
-            return jsonResponse({ error: 'Mot de passe administrateur incorrect' }, 401, corsHeaders);
-          }
-          const adminUser = {
-            id: 'admin-super-001',
-            fullName: 'Administrateur Général',
-            email: 'goodluckelishaagboguin@gmail.com',
-            role: 'ADMIN',
-            filiere: 'ALL',
-            status: 'ACTIVE',
-            createdAt: new Date().toISOString(),
-          };
-          return jsonResponse({ token: 'cf-jwt-token-admin', user: adminUser }, 200, corsHeaders);
-        }
+  const existingUser = await env.DB
+    .prepare('SELECT * FROM users WHERE email = ?')
+    .bind(email.toLowerCase())
+    .first();
 
-        // Query D1 Database
-        const stmt = env.DB.prepare('SELECT * FROM users WHERE LOWER(email) = ?').bind(trimmedEmail);
-        const user = await stmt.first<any>();
+  if (existingUser) {
+    return jsonResponse(
+      { error: "Cet email existe déjà" },
+      400,
+      corsHeaders
+    );
+  }
 
-        if (!user) {
-          return jsonResponse({ error: 'Compte introuvable sur la base Cloudflare D1' }, 401, corsHeaders);
-        }
+  await env.DB
+    .prepare(`
+      INSERT INTO users 
+      (full_name,email,password,role,filiere,status,created_at)
+      VALUES (?,?,?,?,?,?,?)
+    `)
+    .bind(
+      fullName,
+      email.toLowerCase(),
+      password,
+      role,
+      filiere,
+      'ACTIVE',
+      new Date().toISOString()
+    )
+    .run();
 
-        return jsonResponse({
-          token: `cf-jwt-token-${user.id}`,
-          user: {
-            id: user.id,
-            fullName: user.full_name,
-            email: user.email,
-            role: user.role,
-            filiere: user.filiere,
-            status: user.status,
-            createdAt: user.created_at,
-          },
-        }, 200, corsHeaders);
+
+  return jsonResponse({
+    message:"Inscription réussie"
+  },201,corsHeaders);
       }
 
       // -----------------------------------------------------------------

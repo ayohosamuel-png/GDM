@@ -1,0 +1,26 @@
+name = "gestion-memoires-academiques"
+main = "src/backend/cloudflareWorker.ts"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# Static Assets Configuration (Cloudflare Pages / Workers)
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+
+# Cloudflare D1 Database Binding (PostgreSQL / SQLite Compatible Engine)
+[[d1_databases]]
+binding = "DB"
+database_name = "memoires-academiques-d1"
+database_id = "00000000-0000-0000-0000-000000000000" # Remplacez par votre Database ID Cloudflare D1 réel
+
+# Cloudflare R2 Bucket Binding (Stockage d'objets PDF & Certificats)
+[[r2_buckets]]
+binding = "MEMOIRES_R2"
+bucket_name = "memoires-academiques-r2"
+
+# Variables d'environnement
+[vars]
+JWT_SECRET = "academic-theses-super-secret-key-2026"
+SUPER_ADMIN_EMAIL = "goodluckelishaagboguin@gmail.com"
+ENVIRONMENT = "production"
